@@ -45,7 +45,7 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun saveData(userId: String, style: String, bitmap: Bitmap) {
+    fun saveData(userId: String, judulAnime: String, episode: String, musim: String, bitmap: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val upload = ImageApi.imgService.uploadImg(
@@ -55,7 +55,7 @@ class MainViewModel : ViewModel() {
                 if (upload.success) {
 
                     Api.userService.addAnime(
-                        AnimeCreate(, style, transformImageData(upload.data), upload.data.deletehash!!)
+                        AnimeCreate(userId, judulAnime, episode, musim, transformImageData(upload.data), upload.data.deletehash!!)
                     )
                     status.value = ApiStatus.LOADING
                     retrieveData(userId)
@@ -72,14 +72,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun deleteData(email: String, outfitId: Int, deleteHash: String) {
+    fun deleteData(email: String, postId: Int, deleteHash: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val upload = ImageApi.imgService.deleteImg(
                     deleteHash = deleteHash
                 )
                 if (upload.success) {
-                    Api.userService.deleteOutfit(outfitId)
+                    Api.userService.deleteOutfit(postId)
                     retrieveData(email)
                 }
             } catch (e: Exception) {

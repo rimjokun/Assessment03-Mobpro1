@@ -31,7 +31,6 @@ import org.d3if3032.assessment03.R
 import org.d3if3032.assessment03.model.Anime
 import org.d3if3032.assessment03.network.ImageApi
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HapusDialog(
     anime: Anime,

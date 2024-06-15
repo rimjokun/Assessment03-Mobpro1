@@ -78,9 +78,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.d3if3032.assessment03.BuildConfig
 import org.d3if3032.assessment03.R
+import org.d3if3032.assessment03.model.Anime
 import org.d3if3032.assessment03.model.User
 import org.d3if3032.assessment03.network.ApiStatus
-import org.d3if3032.assessment03.network.HewanApi
+import org.d3if3032.assessment03.network.ImageApi
 import org.d3if3032.assessment03.network.UserDataStore
 import org.d3if3032.assessment03.ui.theme.Assessment03Theme
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,12 +95,12 @@ fun MainScreen(){
     val errorMessage by viewModel.errorMessage
 
     var showDialog by remember { mutableStateOf(false) }
-    var showHewanDialog by remember { mutableStateOf(false) }
+    var showImageDialog by remember { mutableStateOf(false) }
 
     var bitmap: Bitmap? by remember { mutableStateOf(null) }
     val launcher = rememberLauncherForActivityResult(CropImageContract()){
         bitmap = getCroppedImage(context.contentResolver, it)
-        if (bitmap != null) showHewanDialog = true
+        if (bitmap != null) showImageDialog = true
     }
 
     Scaffold(
@@ -144,7 +145,7 @@ fun MainScreen(){
             }) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(id = R.string.tambah_hewan)
+                    contentDescription = stringResource(id = R.string.tambah_anime)
                 )
             }
         }
@@ -159,12 +160,12 @@ fun MainScreen(){
                 showDialog = false
             }
         }
-        if (showHewanDialog) {
-            HewanDialog(
+        if (showImageDialog) {
+            ImageDialog(
                 bitmap = bitmap,
-                onDismissRequest = { showHewanDialog  = false  }){ nama, namaLatin ->
-                viewModel.saveData(user.email, nama, namaLatin, bitmap!!)
-                showHewanDialog=false
+                onDismissRequest = { showImageDialog  = false  }){ judulAnime, episode, musim ->
+                viewModel.saveData(user.email, judulAnime, episode ,musim , bitmap!!)
+                showImageDialog=false
             }
         }
         if (errorMessage != null) {
@@ -200,11 +201,7 @@ fun ScreenContent(viewModel: MainViewModel,userId: String, modifier: Modifier){
                 contentPadding = PaddingValues(bottom = 80.dp)
             ){
                 items(data) {
-                    if (it.mine == "0") {
-                        ListItem(hewan = it, viewModel = viewModel, userId = userId)
-                    } else {
-                        ListItem(hewan = it, viewModel = viewModel, userId = userId, showHapus = true)
-                    }
+                    ListItem(anime = it, viewModel = viewModel, userId = userId)
                 }
             }
         }
@@ -228,7 +225,7 @@ fun ScreenContent(viewModel: MainViewModel,userId: String, modifier: Modifier){
 }
 
 @Composable
-fun ListItem(hewan: Hewan, viewModel: MainViewModel, userId: String, showHapus: Boolean = false){
+fun ListItem(anime: Anime, viewModel: MainViewModel, userId: String, showHapus: Boolean = false){
     var showDialogDelete by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
@@ -238,9 +235,9 @@ fun ListItem(hewan: Hewan, viewModel: MainViewModel, userId: String, showHapus: 
     ){
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(HewanApi.getHewanUrl(hewan.imageId))
+                .data(ImageApi.getImageUrl(anime.image_id))
                 .build(),
-            contentDescription = stringResource(R.string.gambar, hewan.nama),
+            contentDescription = stringResource(R.string.gambar, anime.judul_anime),
             contentScale = ContentScale.Crop,
             placeholder = painterResource(id = R.drawable.loading_img),
             error = painterResource(id = R.drawable.broken_img),
@@ -260,12 +257,18 @@ fun ListItem(hewan: Hewan, viewModel: MainViewModel, userId: String, showHapus: 
             ){
                 Column {
                     Text(
-                        text = hewan.nama,
+                        text = anime.judul_anime,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                     Text(
-                        text = hewan.namaLatin,
+                        text = anime.episode,
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = anime.musim,
                         fontStyle = FontStyle.Italic,
                         fontSize = 14.sp,
                         color = Color.White
@@ -275,10 +278,11 @@ fun ListItem(hewan: Hewan, viewModel: MainViewModel, userId: String, showHapus: 
                     IconButton(onClick = { showDialogDelete = true }) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                         if (showDialogDelete) {
-                            DeleteDialog(
+                            HapusDialog(
+                                anime,
                                 onDismissRequest = { showDialogDelete = false },
                             ) {
-                                viewModel.deleteData(userId, hewan.id )
+                                viewModel.deleteData(userId, anime.anime_id, anime.delete_hash )
                                 showDialogDelete = false
                             }
                         }
