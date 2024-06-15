@@ -31,12 +31,15 @@ class MainViewModel : ViewModel() {
     var errorMessage = mutableStateOf<String?>(null)
         private set
 
+    var querySuccess = mutableStateOf(false)
+        private set
+
 
     fun retrieveData(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = ApiStatus.LOADING
             try {
-                data.value = Api.userService.getAllOutfit(userId)
+                data.value = Api.userService.getAllAnime(userId)
                 status.value = ApiStatus.SUCCESS
             } catch (e: Exception) {
                 Log.d("MainViewModel", "Failure: ${e.message}")
@@ -55,8 +58,9 @@ class MainViewModel : ViewModel() {
                 if (upload.success) {
 
                     Api.userService.addAnime(
-                        AnimeCreate(userId, judulAnime, episode, musim, transformImageData(upload.data), upload.data.deletehash!!)
+                        AnimeCreate(judulAnime, episode, musim, transformImageData(upload.data), upload.data.deletehash!!,userId)
                     )
+                    querySuccess.value = true
                     status.value = ApiStatus.LOADING
                     retrieveData(userId)
                 }
@@ -72,14 +76,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun deleteData(email: String, postId: Int, deleteHash: String) {
+    fun deleteData(postId: Int, email: String, deleteHash: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val upload = ImageApi.imgService.deleteImg(
                     deleteHash = deleteHash
                 )
                 if (upload.success) {
-                    Api.userService.deleteOutfit(postId)
+                    Api.userService.deleteAnime(postId, email)
                     retrieveData(email)
                 }
             } catch (e: Exception) {
@@ -103,7 +107,7 @@ class MainViewModel : ViewModel() {
         return MultipartBody.Part.createFormData("image", "image.jpg", requestBody)
     }
 
-    fun transformImageData(imageData: ImageData): String {
+    private fun transformImageData(imageData: ImageData): String {
         val extension = when (imageData.type) {
             "image/png" -> "png"
             "image/jpeg" -> "jpg"

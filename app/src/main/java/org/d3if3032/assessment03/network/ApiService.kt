@@ -36,13 +36,14 @@ interface UserApi {
     ): MessageResponse
 
     @GET("posts/")
-    suspend fun getAllOutfit(
+    suspend fun getAllAnime(
         @Query("user_email") email: String,
     ): List<Anime>
 
-    @DELETE("outfits/{outfit_id}")
-    suspend fun deleteOutfit(
-        @Path("outfit_id") id: Int
+    @DELETE("posts/{post_id}")
+    suspend fun deleteAnime(
+        @Path("post_id") id: Int,
+        @Query("email") email: String
     ): MessageResponse
 }
 

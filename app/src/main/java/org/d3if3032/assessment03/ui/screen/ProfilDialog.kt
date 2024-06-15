@@ -1,6 +1,5 @@
 package org.d3if3032.assessment03.ui.screen
 
-import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,21 +23,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.d3if3032.assessment03.R
 import org.d3if3032.assessment03.model.User
-import org.d3if3032.assessment03.ui.theme.Assessment03Theme
+
 
 @Composable
 fun ProfilDialog(
     user: User,
     onDismissRequest: () -> Unit,
     onConfirmation: () -> Unit
-){
+) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(
             modifier = Modifier.padding(16.dp),
@@ -46,9 +44,8 @@ fun ProfilDialog(
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Apply CircleShape to make the image circular
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(user.photoUrl)
@@ -58,7 +55,7 @@ fun ProfilDialog(
                     contentScale = ContentScale.Crop,
                     placeholder = painterResource(id = R.drawable.loading_img),
                     error = painterResource(id = R.drawable.broken_img),
-                    modifier = Modifier.size(100.dp).clip(CircleShape) // Add clip(CircleShape)
+                    modifier = Modifier.size(100.dp).clip(shape = CircleShape)
                 )
                 Text(
                     text = user.name,
@@ -82,7 +79,7 @@ fun ProfilDialog(
                         onClick = { onDismissRequest() },
                         modifier = Modifier.padding(8.dp)
                     ) {
-                        Text(text = stringResource(R.string.tutup))
+                        Text(text = stringResource(id = R.string.tutup))
                     }
                     OutlinedButton(
                         onClick = { onConfirmation() },
@@ -90,24 +87,12 @@ fun ProfilDialog(
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
                     ) {
                         Text(
-                            text = stringResource(R.string.logout),
+                            text = stringResource(id = R.string.logout),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
                 }
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
-@Composable
-fun DialogPreview() {
-    Assessment03Theme {
-        ProfilDialog(user = User("Rimba", "manggala3614@gmail.com", ""),
-            onDismissRequest = {},
-            onConfirmation = {})
     }
 }
