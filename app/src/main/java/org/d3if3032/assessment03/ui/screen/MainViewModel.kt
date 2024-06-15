@@ -11,27 +11,32 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.d3if3032.assessment03.model.Hewan
+import org.d3if3032.assessment03.model.Anime
+import org.d3if3032.assessment03.model.AnimeCreate
+import org.d3if3032.assessment03.model.ImageData
+import org.d3if3032.assessment03.network.Api
 import org.d3if3032.assessment03.network.ApiStatus
-import org.d3if3032.assessment03.network.HewanApi
+import org.d3if3032.assessment03.network.ImageApi
+
 import java.io.ByteArrayOutputStream
 
-class MainViewModel : ViewModel(){
+class MainViewModel : ViewModel() {
 
-    var data = mutableStateOf(emptyList<Hewan>())
-    private set
+    var data = mutableStateOf(emptyList<Anime>())
+        private set
 
     var status = MutableStateFlow(ApiStatus.LOADING)
-    private set
+        private set
 
     var errorMessage = mutableStateOf<String?>(null)
-    private set
+        private set
+
 
     fun retrieveData(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             status.value = ApiStatus.LOADING
-            try{
-                data.value = HewanApi.service.getHewan(userId)
+            try {
+                data.value = Api.userService.getAllOutfit(userId)
                 status.value = ApiStatus.SUCCESS
             } catch (e: Exception) {
                 Log.d("MainViewModel", "Failure: ${e.message}")
@@ -39,47 +44,77 @@ class MainViewModel : ViewModel(){
             }
         }
     }
-    fun saveData(userId: String, nama: String, namaLatin: String, bitmap: Bitmap){
+
+    fun saveData(userId: String, style: String, bitmap: Bitmap) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val result = HewanApi.service.postHewan(
-                    userId,
-                    nama.toRequestBody("text/plain".toMediaTypeOrNull()),
-                    namaLatin.toRequestBody("text/plain".toMediaTypeOrNull()),
-                    bitmap.toMultipartBody()
+                val upload = ImageApi.imgService.uploadImg(
+                   image =  bitmap.toMultipartBody()
                 )
-                if (result.status == "success")
+
+                if (upload.success) {
+
+                    Api.userService.addAnime(
+                        AnimeCreate(, style, transformImageData(upload.data), upload.data.deletehash!!)
+                    )
+                    status.value = ApiStatus.LOADING
                     retrieveData(userId)
-                else
-                    throw Exception(result.message)
-            } catch (e: Exception){
-                Log.d("MainViewModel", "Failure: ${e.message}")
+                }
+            } catch (e: Exception) {
+                Log.d("MainVM", "${e.message}")
+                if (e.message == "HTTP 500 ") {
+                errorMessage.value = "Error: Database Idle, harap masukkan data kembali."
+                } else {
                 errorMessage.value = "Error: ${e.message}"
+                Log.d("MainViewModel", "Failure: ${e.message}")
+                }
             }
         }
     }
-    fun deleteData(userId: String, id: Long) {
+
+    fun deleteData(email: String, outfitId: Int, deleteHash: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val result = HewanApi.service.deleteHewan(userId, id)
-                if (result.status == "success")
-                    retrieveData(userId)
-                else
-                    throw Exception(result.message)
+                val upload = ImageApi.imgService.deleteImg(
+                    deleteHash = deleteHash
+                )
+                if (upload.success) {
+                    Api.userService.deleteOutfit(outfitId)
+                    retrieveData(email)
+                }
             } catch (e: Exception) {
-                Log.d("MainViewModel", "Failure: ${e.message}")
-                errorMessage.value = "Error: ${e.message}"
+                if (e.message == "HTTP 500 ") {
+                    errorMessage.value = "Error: Database Idle, harap masukkan data kembali."
+                } else {
+                    errorMessage.value = "Error: ${e.message}"
+                    Log.d("MainViewModel", "Failure: ${e.message}")
+                }
             }
         }
     }
+
     private fun Bitmap.toMultipartBody(): MultipartBody.Part {
         val stream = ByteArrayOutputStream()
         compress(Bitmap.CompressFormat.JPEG, 80, stream)
         val byteArray = stream.toByteArray()
         val requestBody = byteArray.toRequestBody(
-            "image/jpg".toMediaTypeOrNull(), 0, byteArray.size)
-        return MultipartBody.Part.createFormData(
-            "image", "image.jpg", requestBody)
+            "image/jpg".toMediaTypeOrNull(), 0, byteArray.size
+        )
+        return MultipartBody.Part.createFormData("image", "image.jpg", requestBody)
     }
-    fun clearMessage() { errorMessage.value = null }
+
+    fun transformImageData(imageData: ImageData): String {
+        val extension = when (imageData.type) {
+            "image/png" -> "png"
+            "image/jpeg" -> "jpg"
+            "image/gif" -> "gif"
+            else -> throw IllegalArgumentException("Unsupported image type")
+        }
+        return "${imageData.id}.$extension"
+    }
+
+    fun clearMessage() {
+        errorMessage.value = null
+    }
+
 }

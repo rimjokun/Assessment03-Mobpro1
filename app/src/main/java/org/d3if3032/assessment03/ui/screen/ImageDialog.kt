@@ -1,6 +1,5 @@
 package org.d3if3032.assessment03.ui.screen
 
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -26,25 +25,22 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import org.d3if3032.assessment03.R
-import org.d3if3032.assessment03.ui.theme.Mobpro1Theme
 
 @Composable
-fun HewanDialog(
+fun ImageDialog(
     bitmap: Bitmap?,
     onDismissRequest: () -> Unit,
-    onConfirmation: (String, String) -> Unit
-){
-    var nama by remember { mutableStateOf("") }
-    var namaLatin by remember { mutableStateOf("") }
+    onConfirmation: (String, String, String) -> Unit
+) {
+    var judulAnime by remember { mutableStateOf("") }
+    var episode by remember { mutableStateOf("") }
+    var musim by remember { mutableStateOf("") }
+
     Dialog(onDismissRequest = { onDismissRequest() }) {
-        Card(
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
+        Card(modifier = Modifier.padding(16.dp), shape = RoundedCornerShape(16.dp)) {
             Column(
                 modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -57,9 +53,11 @@ fun HewanDialog(
                         .aspectRatio(1f)
                 )
                 OutlinedTextField(
-                    value = nama,
-                    onValueChange = { nama = it },
-                    label = { Text(text = stringResource(id = R.string.nama)) },
+                    value = judulAnime,
+                    onValueChange = { judulAnime = it },
+                    label = {
+                        Text(text = stringResource(id = R.string.judul_anime))
+                    },
                     maxLines = 1,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
@@ -68,49 +66,63 @@ fun HewanDialog(
                     modifier = Modifier.padding(top = 8.dp)
                 )
                 OutlinedTextField(
-                    value = namaLatin,
-                    onValueChange = { namaLatin = it },
-                    label = { Text(text = stringResource(id = R.string.nama_latin)) },
+                    value = episode,
+                    onValueChange = { episode = it },
+                    label = {
+                        Text(text = stringResource(id = R.string.episode))
+                    },
                     maxLines = 1,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Done
+                        imeAction = ImeAction.Next
                     ),
                     modifier = Modifier.padding(top = 8.dp)
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.Center
+                OutlinedTextField(
+                    value = musim,
+                    onValueChange = { musim = it },
+                    label = {
+                        Text(text = stringResource(id = R.string.musim))
+                    },
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Words,
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                OutlinedButton(
+                    onClick = { onDismissRequest() },
+                    modifier = Modifier.padding(8.dp)
                 ) {
-                    OutlinedButton(
-                        onClick = { onDismissRequest() },
-                        modifier = Modifier.padding(8.dp)) {
-                        Text(text = stringResource(id = R.string.batal))
-                    }
-                    OutlinedButton(
-                        onClick = { onConfirmation(nama, namaLatin) },
-                        enabled = nama.isNotEmpty() && namaLatin.isNotEmpty(),
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.simpan))
-                    }
+                    Text(text = stringResource(id = R.string.batal))
+                }
+                OutlinedButton(
+                    onClick = { onConfirmation(judulAnime, episode, musim) },
+                    enabled = judulAnime.isNotEmpty(),
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text(text = stringResource(id = R.string.simpan))
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
-@Composable
-fun AddDialogPreview(){
-    Mobpro1Theme {
-        HewanDialog(
-            bitmap = null,
-            onDismissRequest = {},
-            onConfirmation = { _, _ ->}
-        )
-    }
-}
+//@Preview
+//@Composable
+//private fun AddDialogPrev() {
+//    Assessment03Theme {
+//        ImageDialog(
+//            bitmap = null,
+//            onDismissRequest = { /*TODO*/ },
+//            onConfirmation = { _-> })
+//    }
+//}

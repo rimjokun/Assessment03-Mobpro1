@@ -78,13 +78,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.d3if3032.assessment03.BuildConfig
 import org.d3if3032.assessment03.R
-import org.d3if3032.assessment03.model.Hewan
 import org.d3if3032.assessment03.model.User
 import org.d3if3032.assessment03.network.ApiStatus
 import org.d3if3032.assessment03.network.HewanApi
 import org.d3if3032.assessment03.network.UserDataStore
-import org.d3if3032.assessment03.ui.theme.Mobpro1Theme
-
+import org.d3if3032.assessment03.ui.theme.Assessment03Theme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(){
@@ -366,7 +364,7 @@ private fun getCroppedImage(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
 fun ScreenPreview() {
-    Mobpro1Theme {
+    Assessment03Theme {
         MainScreen()
     }
 }
