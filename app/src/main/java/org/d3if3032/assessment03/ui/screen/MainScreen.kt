@@ -139,7 +139,7 @@ fun MainScreen() {
                 if (user.email.isNotEmpty() && user.email != "") {
                     val options = CropImageContractOptions(
                         null, CropImageOptions(
-                            imageSourceIncludeGallery = false,
+                            imageSourceIncludeGallery = true,
                             imageSourceIncludeCamera = true,
                             fixAspectRatio = true
                         )
