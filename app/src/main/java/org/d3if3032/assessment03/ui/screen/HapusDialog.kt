@@ -28,7 +28,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.d3if3032.assessment03.R
 import org.d3if3032.assessment03.model.Anime
-import org.d3if3032.assessment03.network.ImageApi
+import org.d3if3032.assessment03.network.Api
 
 @Composable
 fun HapusDialog(
@@ -45,7 +45,7 @@ fun HapusDialog(
                 Text(text = "Anda yakin ingin menghapus gambar ini?")
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(ImageApi.getImageUrl(anime.image_id))
+                        .data(Api.getImageUrl(anime.image_id))
                         .crossfade(true)
                         .build(),
                     contentDescription = stringResource(

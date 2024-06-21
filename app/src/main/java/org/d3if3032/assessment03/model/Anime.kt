@@ -7,14 +7,4 @@ data class Anime(
     val episode: String,
     val musim: String,
     val image_id: String,
-    val delete_hash: String,
 )
-
-data class AnimeCreate(
-    val judul_anime: String,
-    val episode: String,
-    val musim: String,
-    val image_id: String,
-    val delete_hash: String,
-    val user_email: String
-    )

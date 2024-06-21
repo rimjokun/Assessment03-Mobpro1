@@ -76,8 +76,8 @@ import org.d3if3032.assessment03.BuildConfig
 import org.d3if3032.assessment03.R
 import org.d3if3032.assessment03.model.Anime
 import org.d3if3032.assessment03.model.User
+import org.d3if3032.assessment03.network.Api
 import org.d3if3032.assessment03.network.ApiStatus
-import org.d3if3032.assessment03.network.ImageApi
 import org.d3if3032.assessment03.network.UserDataStore
 
 
@@ -169,7 +169,7 @@ fun MainScreen() {
             ImageDialog(
                 bitmap = bitmap,
                 onDismissRequest = { showImgDialog  = false  }){ judulAnime, episode, musim ->
-                viewModel.saveData(user.email, judulAnime, episode ,musim , bitmap!!)
+                viewModel.saveData(judulAnime, episode ,musim , user.email, bitmap!!)
                 showImgDialog=false
             }
         }
@@ -223,7 +223,7 @@ fun ScreenContent(viewModel: MainViewModel, userId: String, modifier: Modifier) 
             }
             if (showHapusDialog) {
                 HapusDialog(anime = anime!!, onDismissRequest = { showHapusDialog = false }) {
-                    viewModel.deleteData(anime!!.post_id, anime!!.user_email, anime!!.delete_hash)
+                    viewModel.deleteData(anime!!.post_id, anime!!.user_email)
                     showHapusDialog = false
                 }
             }
@@ -274,7 +274,7 @@ fun GridItem(anime: Anime, onClick: () -> Unit) {
         Log.d("IMAGE_ID", "imageId: ${anime.image_id}")
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(ImageApi.getImageUrl(anime.image_id))
+                .data(Api.getImageUrl(anime.image_id))
                 .crossfade(true)
                 .size(480, 854)
                 .build(),
